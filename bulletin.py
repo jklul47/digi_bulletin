@@ -28,7 +28,7 @@ class DigitalBulletinBoard:
     def load_config(self, config_file):
         """Load configuration from JSON file"""
         default_config = {
-            "image_directory": "C:\\dev\\proj\\digibulletin\\images",
+            "image_directory": "/home/jklul/dev/bulletin_v0_1/images",
             "display_duration": 10,  # seconds
             "supported_formats": [".jpg", ".jpeg", ".png", ".gif", ".bmp"],
             "shuffle_images": False,
@@ -64,7 +64,7 @@ class DigitalBulletinBoard:
             level=log_level,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('C:\\dev\\proj\\digibulletin\\bulletin_board.log'),
+                logging.FileHandler('os.'),
                 logging.StreamHandler()
             ]
         )
