@@ -1,0 +1,16 @@
+{
+    "image_directory": "./images",
+    "google_drive": {
+        "enabled": true,
+        "folder_id": "1NTKQO5oloHrph-qxrvRjtMn1bx3AEkIu",
+        "service_account_file": "./.cfg/newlifedev-key.json",
+        "sync_interval": 300
+    },
+    "display_duration": 10,
+        "supported_formats": [".jpg", ".jpeg", ".png", ".gif", ".bmp"],
+        "shuffle_images": false,
+        "transition_enabled": true,
+        "background_color": [0, 0, 0],
+        "log_level": "INFO",
+        "fullscreen": true
+}

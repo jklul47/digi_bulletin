@@ -10,12 +10,13 @@ import sys
 import time
 import json
 import random
+from image_fetcher import GoogleDriveSync
 from pathlib import Path
 from PIL import Image, ImageOps
 import logging
 
 class DigitalBulletinBoard:
-    def __init__(self, config_file='C:\\dev\\proj\\digibulletin\\config.json'):
+    def __init__(self, config_file=os.path.join(os.path.dirname(__file__), 'config.json')):
         """Initialize the bulletin board with configuration"""
         self.load_config(config_file)
         self.setup_logging()
@@ -28,7 +29,7 @@ class DigitalBulletinBoard:
     def load_config(self, config_file):
         """Load configuration from JSON file"""
         default_config = {
-            "image_directory": "/home/jklul/dev/bulletin_v0_1/images",
+            "image_directory": os.path.join(os.path.dirname(__file__), 'images'),
             "display_duration": 10,  # seconds
             "supported_formats": [".jpg", ".jpeg", ".png", ".gif", ".bmp"],
             "shuffle_images": False,
@@ -40,6 +41,7 @@ class DigitalBulletinBoard:
             "screen_height": 1080
         }
         
+        # Open and load config file, or create it if it doesn't exist
         try:
             with open(config_file, 'r') as f:
                 user_config = json.load(f)
@@ -64,7 +66,7 @@ class DigitalBulletinBoard:
             level=log_level,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('os.'),
+                logging.FileHandler('bulletin.log'),
                 logging.StreamHandler()
             ]
         )
@@ -94,8 +96,12 @@ class DigitalBulletinBoard:
         image_dir = Path(self.config['image_directory'])
         
         if not image_dir.exists():
-            self.logger.error(f"Image directory does not exist: {image_dir}")
-            return False
+            try:
+                image_dir.mkdir(parents=True, exist_ok=True)
+                self.logger.info(f"Created image directory: {image_dir}")
+            except Exception as e:
+                self.logger.error(f"Failed to create image directory {image_dir}: {e}")
+                return False
         
         self.image_list = []
         supported_formats = [fmt.lower() for fmt in self.config['supported_formats']]
