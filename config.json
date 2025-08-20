@@ -12,5 +12,5 @@
     "transition_enabled": true,
     "background_color": [0, 0, 0],
     "log_level": "INFO",
-    "fullscreen": false
+    "fullscreen": true
 }
