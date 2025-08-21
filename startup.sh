@@ -13,13 +13,9 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export DISPLAY=:0
 export XAUTHORITY=/home/nljk/.Xauthority
 
-# Open log window
-if command -v lxterminal &> /dev/null; then
-    lxterminal --geometry=80x25+10+10 --title="Bulletin Logs" --command="tail -f /var/log/bulletin-board.log" &
-    sleep 2
-else
-    echo "lxterminal not found, skipping log window"
-fi
+# Open a log terminal
+lxterminal --geometry=80x25+10+10 --title="Bulletin Logs" --command="tail -f /var/log/bulletin-board.log" &
+sleep 2
 
 # Basic setup
 cd "$PROJECT_DIR" || { log "ERROR: Cannot find project directory $PROJECT_DIR"; exit 1; }
