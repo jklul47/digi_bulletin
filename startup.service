@@ -1,9 +1,9 @@
 [Unit]
 Description=Digital Bulletin Board Display Service
 Documentation=https://github.com/jklul47/digi_bulletin
-After=graphical-session.target multi-user.target network-online.target
-Wants=graphical-session.target
-Requires=network-online.target
+After=graphical-session.target
+Wants=network-online.target
+Requires=graphical-session.target
 
 [Service]
 Type=simple
