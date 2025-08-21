@@ -4,16 +4,20 @@ Digital Bulletin Board Runner Script
 Handles setup, dependency installation, and execution of the bulletin board system
 
 arguments:
+--setup: Install system and Python dependencies (required for first run)
 --update-system: Updates system packages (Linux/Raspberry Pi only)
 --force-deps: Force reinstall Python dependencies
 --version: Show version information
 --help: Show help message
 
-# First & regular runs
+# First run (install dependencies)
+python3 run.py --setup
+
+# Regular runs (default - just run the application)
 python3 run.py
 
 # Update system packages and force reinstall dependencies
-python3 run.py --update-system --force-deps
+python3 run.py --setup --update-system --force-deps
 """
 
 import argparse
@@ -88,6 +92,34 @@ class BulletinRunner:
                 cpuinfo = f.read()
             return 'BCM' in cpuinfo or 'Raspberry Pi' in cpuinfo
         except FileNotFoundError:
+            return False
+    
+    def is_first_run(self):
+        """Check if this is the first time running the script"""
+        return not self.venv_dir.exists()
+    
+    def check_dependencies_installed(self):
+        """Check if Python dependencies are installed in venv"""
+        if not self.venv_dir.exists():
+            return False
+        
+        # Get the python executable path in the venv
+        if platform.system() == "Windows":
+            venv_python = self.venv_dir / "Scripts" / "python.exe"
+        else:
+            venv_python = self.venv_dir / "bin" / "python"
+        
+        if not venv_python.exists():
+            return False
+        
+        try:
+            # Try to import key dependencies
+            result = self.run_command([
+                str(venv_python), "-c", 
+                "import pygame, PIL, googleapiclient"
+            ], check=False)
+            return result.returncode == 0
+        except:
             return False
     
     def update_system(self):
@@ -278,35 +310,42 @@ class BulletinRunner:
         except KeyboardInterrupt:
             self.print_status("Bulletin board interrupted by user")
     
-    def is_first_run(self):
-        """Check if this is the first time running the script"""
-        return not self.venv_dir.exists()
-    
-    def run(self, update_system=False, force_deps=False):
+    def run(self, setup=False, update_system=False, force_deps=False):
         """Main execution function"""
-        self.print_status("Starting Digital Bulletin Board Setup and Execution")
-        self.print_status("=" * 60)
+        self.print_status("Starting Digital Bulletin Board")
+        self.print_status("=" * 50)
         
         try:
-            # Check if this is first run
+            # Check if this is first run and setup not requested
             first_run = self.is_first_run()
+            deps_installed = self.check_dependencies_installed()
             
-            if first_run:
-                self.print_status("First run detected - installing dependencies")
+            if first_run and not setup:
+                self.print_error("First run detected! Dependencies need to be installed.")
+                self.print_error("Please run: python3 run.py --setup")
+                sys.exit(1)
             
-            # Update system if requested
-            if update_system:
-                self.update_system()
+            if not deps_installed and not setup:
+                self.print_error("Python dependencies not found in virtual environment!")
+                self.print_error("Please run: python3 run.py --setup")
+                sys.exit(1)
             
-            # Install system dependencies if first run or if running on Pi
-            if first_run or self.is_raspberry_pi():
+            # Setup dependencies if requested
+            if setup:
+                self.print_status("Setup mode - installing dependencies")
+                
+                # Update system if requested
+                if update_system:
+                    self.update_system()
+                
+                # Install system dependencies
                 self.install_system_dependencies()
+                
+                # Install Python dependencies
+                self.install_python_dependencies(force_reinstall=force_deps)
             
-            # Setup virtual environment
+            # Always setup virtual environment (lightweight operation)
             self.setup_virtual_environment()
-            
-            # Install Python dependencies
-            self.install_python_dependencies(force_reinstall=force_deps)
             
             # Check configuration
             self.check_configuration()
@@ -332,15 +371,21 @@ def main():
     )
     
     parser.add_argument(
+        "--setup", 
+        action="store_true",
+        help="Install system and Python dependencies (required for first run)"
+    )
+    
+    parser.add_argument(
         "--update-system", 
         action="store_true",
-        help="Update system packages before running (Linux/Raspberry Pi only)"
+        help="Update system packages before running (Linux/Raspberry Pi only, requires --setup)"
     )
     
     parser.add_argument(
         "--force-deps",
         action="store_true", 
-        help="Force reinstall Python dependencies"
+        help="Force reinstall Python dependencies (requires --setup)"
     )
     
     parser.add_argument(
@@ -351,6 +396,11 @@ def main():
     
     args = parser.parse_args()
     
+    # Validate argument combinations
+    if (args.update_system or args.force_deps) and not args.setup:
+        print("Error: --update-system and --force-deps require --setup flag")
+        sys.exit(1)
+    
     # Check Python version
     if sys.version_info < (3, 7):
         print("Error: Python 3.7 or higher is required")
@@ -359,6 +409,7 @@ def main():
     # Create and run the bulletin runner
     runner = BulletinRunner()
     runner.run(
+        setup=args.setup,
         update_system=args.update_system,
         force_deps=args.force_deps
     )
