@@ -35,10 +35,9 @@ else
     exit_code=$?
     if [ $exit_code -eq 124 ]; then
         log "6 hours completed - timeout reached (this is normal)"
-        exit 0  # Normal completion, don't restart
     else
         log "Bulletin board failed with exit code $exit_code"
-        exit 1  # Actual failure, allow restart
+        sleep 180
     fi
 fi
 
