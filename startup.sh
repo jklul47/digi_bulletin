@@ -10,21 +10,16 @@ log "=== Digital Bulletin Board Startup ==="
 
 # Ensure script has full PATH
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export DISPLAY=:0
 
 # Basic setup
 cd "$PROJECT_DIR" || { log "ERROR: Cannot find project directory $PROJECT_DIR"; exit 1; }
 
-# Wait for X11 to be fully ready (non-blocking check)
-log "Checking X11 display availability..."
-if xset q >/dev/null 2>&1; then
-    log "X11 display is ready"
-else
-    log "WARNING: xset command failed, but continuing anyway (X11 might still work)"
-    log "This can happen due to permission issues with xset command"
-fi
-
 # Additional wait for system stability
-log "Waiting for system to stabilize..."
+log "Waiting for system to stabilize... (1/2)"
+sleep 10
+
+log "Waiting for system to stabilize... (2/2)"
 sleep 10
 
 log "Starting bulletin board with 6-hour timeout..."
