@@ -3,7 +3,7 @@
 
 # Set script directory and project path
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-PROJECT_DIR="~/dev/digi_bulletin"
+PROJECT_DIR="/home/nljk/dev/digi_bulletin"
 
 # Logging function
 log() {
