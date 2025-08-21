@@ -51,7 +51,7 @@ sleep 10
 
 # Start the bulletin board application
 log "Starting Digital Bulletin Board application..."
-if python3 run.py; then
+if DISPLAY=:0 python3 run.py; then
     log "Digital Bulletin Board application completed successfully"
 else
     log "ERROR: Digital Bulletin Board application failed with exit code $?"
