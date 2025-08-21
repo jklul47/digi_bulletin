@@ -1,5 +1,7 @@
 #!/bin/bash
-sleep 10
+# Give time for system to stabilize
+sleep 15
+
 PROJECT_DIR="/home/nljk/dev/digi_bulletin"
 LOG_FILE="/var/log/bulletin-board.log"
 
@@ -48,17 +50,14 @@ log "Current user: $(whoami)"
 log "Display: $DISPLAY"
 
 # Additional wait for system stability
-log "Waiting for system to stabilize... (1/2)"
-sleep 10
-
-log "Waiting for system to stabilize... (2/2)"
-sleep 10
+log "Waiting for system to stabilize... "
+sleep 15
 
 log "Starting bulletin board with 6-hour timeout..."
 
 # Use timeout command to automatically kill after 6 hours
 # Redirect stderr to ensure all output goes to our log
-if timeout 120 python3 run.py 2>&1 | while IFS= read -r line; do log "APP: $line"; done; then
+if timeout 21600 python3 run.py 2>&1 | while IFS= read -r line; do log "APP: $line"; done; then
     log "Bulletin board completed normally"
     exit_code=0
 else
