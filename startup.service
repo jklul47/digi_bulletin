@@ -1,0 +1,42 @@
+[Unit]
+Description=Digital Bulletin Board Display Service
+Documentation=https://github.com/jklul47/digi_bulletin
+After=graphical-session.target
+Wants=graphical-session.target
+Requires=network-online.target
+
+[Service]
+Type=simple
+User=nljk
+Group=nljk
+WorkingDirectory=~/dev/digi_bulletin
+
+# Environment variables for GUI applications
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=~/.Xauthority
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+# Execute the startup script
+ExecStart=~/dev/digi_bulletin/startup.sh
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bulletin-board
+
+# Security settings (optional)
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Timeout settings
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+[Install]
+WantedBy=graphical.target
