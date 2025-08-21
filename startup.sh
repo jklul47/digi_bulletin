@@ -49,19 +49,76 @@ export XAUTHORITY=/home/jklul/.Xauthority
 log "Waiting 10 seconds for system to stabilize..."
 sleep 10
 
-# Start the bulletin board application
+# Start the bulletin board application in background and run for 6 hours
 log "Starting Digital Bulletin Board application..."
-if DISPLAY=:0 python3 run.py; then
-    log "Digital Bulletin Board application completed successfully"
-else
-    log "ERROR: Digital Bulletin Board application failed with exit code $?"
-    exit 1
-fi
 
-# Auto-shutdown after 6 hours (21600 seconds)
-log "Scheduling shutdown in 6 hours..."
-sleep 21600
-log "Initiating shutdown after 6 hours of operation"
-sudo shutdown now
+# Start the application in background
+DISPLAY=:0 python3 run.py &
+APP_PID=$!
+
+log "Digital Bulletin Board started with PID: $APP_PID"
+log "Application will run for 6 hours (21600 seconds) then shutdown"
+
+# Function to cleanup and shutdown
+cleanup_and_shutdown() {
+    log "6 hours completed - stopping application and shutting down"
+    
+    # Gracefully terminate the application
+    if kill -0 $APP_PID 2>/dev/null; then
+        log "Sending TERM signal to application (PID: $APP_PID)"
+        kill -TERM $APP_PID
+        
+        # Wait up to 10 seconds for graceful shutdown
+        for i in {1..10}; do
+            if ! kill -0 $APP_PID 2>/dev/null; then
+                log "Application terminated gracefully"
+                break
+            fi
+            sleep 1
+        done
+        
+        # Force kill if still running
+        if kill -0 $APP_PID 2>/dev/null; then
+            log "Force killing application (PID: $APP_PID)"
+            kill -KILL $APP_PID
+        fi
+    else
+        log "Application already stopped"
+    fi
+    
+    log "Initiating system shutdown"
+    sudo shutdown now
+}
+
+# Set up signal handlers for cleanup
+trap cleanup_and_shutdown SIGTERM SIGINT
+
+# Wait for 6 hours (21600 seconds) or until application exits
+# timeout_duration=21600
+timeout_duration=60     # For testing
+elapsed=0
+check_interval=30
+
+while [ $elapsed -lt $timeout_duration ]; do
+    # Check if application is still running
+    if ! kill -0 $APP_PID 2>/dev/null; then
+        log "ERROR: Digital Bulletin Board application stopped unexpectedly after $elapsed seconds"
+        exit 1
+    fi
+    
+    # Sleep for check interval
+    sleep $check_interval
+    elapsed=$((elapsed + check_interval))
+    
+    # Log progress every hour
+    if [ $((elapsed % 3600)) -eq 0 ]; then
+        hours_elapsed=$((elapsed / 3600))
+        hours_remaining=$(((timeout_duration - elapsed) / 3600))
+        log "Progress: $hours_elapsed hours elapsed, $hours_remaining hours remaining"
+    fi
+done
+
+# Time's up - cleanup and shutdown
+cleanup_and_shutdown
 
 log "=== Digital Bulletin Board Startup Complete ==="
