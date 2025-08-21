@@ -23,11 +23,11 @@ Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Execute the startup script
 ExecStart=/bin/bash /home/nljk/dev/digi_bulletin/startup.sh
 
-# Restart policy - be more conservative
-Restart=on-failure
-RestartSec=30
-StartLimitBurst=2
-StartLimitIntervalSec=600
+# Restart policy - only restart on actual failures, not normal exits
+Restart=on-abnormal
+RestartSec=60
+StartLimitBurst=3
+StartLimitIntervalSec=1800
 
 # Logging
 StandardOutput=journal
