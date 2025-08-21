@@ -22,8 +22,8 @@ log "Starting bulletin board with 6-hour timeout..."
 
 # Use timeout command to automatically kill after 6 hours
 # timeout sends SIGTERM, then SIGKILL if needed
-if timeout 60 DISPLAY=:0 python3 run.py; then      # Testing purposees
-# if timeout 21600 DISPLAY =:0 python3 run.py; then
+if timeout 60 python3 run.py; then      # Testing purposees
+# if timeout 21600 python3 run.py; then
     log "Bulletin board completed normally"
 else
     exit_code=$?
@@ -35,4 +35,4 @@ else
 fi
 
 log "Shutting down system"
-sudo shutdown now
+# sudo shutdown now
