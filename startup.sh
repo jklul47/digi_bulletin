@@ -23,21 +23,36 @@ sleep 10
 log "Waiting for system to stabilize... (2/2)"
 sleep 10
 
-log "Starting bulletin board with 6-hour timeout..."
+og "Starting bulletin board with terminal display..."
 
-# Use timeout command to automatically kill after 6 hours
-# timeout sends SIGTERM, then SIGKILL if needed
-if timeout 60 python3 run.py; then      # Testing purposes
-# if timeout 21600 python3 run.py; then
-    log "Bulletin board completed normally"
-    exit 0
+# Open terminal with the application
+if command -v lxterminal >/dev/null 2>&1; then
+    lxterminal --title="Digital Bulletin Board" --geometry=80x30 -e bash -c "
+        echo 'Digital Bulletin Board Starting...'
+        echo 'Press Ctrl+C to stop, ESC in app to quit'
+        echo '========================================'
+        cd '$PROJECT_DIR'
+        timeout 60 python3 run.py 2>&1 | tee -a bulletin.log
+        echo 'Session ended. Press Enter to continue shutdown...'
+        read
+    "
+    # Wait for terminal to close
+    wait
+    log "Terminal session completed"
 else
-    exit_code=$?
-    if [ $exit_code -eq 124 ]; then
-        log "6 hours completed - timeout reached (this is normal)"
+    # Fallback to original method if no terminal available
+    log "No terminal available, running in background..."
+    if timeout 60 python3 run.py; then
+        log "Bulletin board completed normally"
+        exit 0
     else
-        log "Bulletin board failed with exit code $exit_code"
-        sleep 180
+        exit_code=$?
+        if [ $exit_code -eq 124 ]; then
+            log "60 seconds completed - timeout reached (this is normal for testing)"
+        else
+            log "Bulletin board failed with exit code $exit_code"
+            sleep 180
+        fi
     fi
 fi
 
