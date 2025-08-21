@@ -58,7 +58,7 @@ log "Starting bulletin board with 6-hour timeout..."
 
 # Use timeout command to automatically kill after 6 hours
 # Redirect stderr to ensure all output goes to our log
-if timeout 21600 python3 run.py 2>&1 | while IFS= read -r line; do log "APP: $line"; done; then
+if timeout 120 python3 run.py 2>&1 | while IFS= read -r line; do log "APP: $line"; done; then
     log "Bulletin board completed normally"
     exit_code=0
 else
