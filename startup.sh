@@ -43,4 +43,17 @@ else
 fi
 
 log "Shutting down system"
-# sudo shutdown now
+sudo shutdown now
+
+### LOG NOTES
+# Application logs
+# tail -f bulletin.log
+# 
+# System startup logs  
+# tail -f /var/log/bulletin-board.log
+# 
+# Systemd service logs
+# journalctl -u startup.service -f
+# 
+# All bulletin-board related systemd logs
+# journalctl -t bulletin-board -f
