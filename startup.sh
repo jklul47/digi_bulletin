@@ -11,6 +11,7 @@ log "=== Digital Bulletin Board Startup ==="
 # Ensure script has full PATH
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export DISPLAY=:0
+export XAUTHORITY=/home/nljk/.Xauthority
 
 # Basic setup
 cd "$PROJECT_DIR" || { log "ERROR: Cannot find project directory $PROJECT_DIR"; exit 1; }
