@@ -9,15 +9,15 @@ Requires=network-online.target
 Type=simple
 User=nljk
 Group=nljk
-WorkingDirectory=~/dev/digi_bulletin
+WorkingDirectory=/home/nljk/dev/digi_bulletin
 
 # Environment variables for GUI applications
 Environment=DISPLAY=:0
-Environment=XAUTHORITY=~/.Xauthority
+Environment=XAUTHORITY=/home/nljk/.Xauthority
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 
 # Execute the startup script
-ExecStart=~/dev/digi_bulletin/startup.sh
+ExecStart=/home/nljk/dev/digi_bulletin/startup.sh
 
 # Restart policy
 Restart=on-failure
