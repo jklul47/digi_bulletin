@@ -155,15 +155,11 @@ class DigitalBulletinBoard:
             return None
     
     def display_image(self, image_surface):
-        """Display image centered on screen with enhanced clearing"""
+        """Display image centered on screen with smooth transition (no blinking)"""
         if image_surface is None:
             return
         
-        # Clear the entire screen multiple times to ensure no remnants
-        self.screen.fill(self.config['background_color'])
-        pygame.display.flip()  # Force immediate update
-        
-        # Fill again as double-buffer protection
+        # Clear and draw everything in the back buffer before displaying
         self.screen.fill(self.config['background_color'])
         
         # Center the image
@@ -171,10 +167,10 @@ class DigitalBulletinBoard:
         screen_rect = self.screen.get_rect()
         image_rect.center = screen_rect.center
         
-        # Blit image to screen
+        # Blit image to screen (still in back buffer)
         self.screen.blit(image_surface, image_rect)
         
-        # Force immediate display update
+        # Only now flip to display everything at once
         pygame.display.flip()
         
         # Log image dimensions for debugging
@@ -207,13 +203,9 @@ class DigitalBulletinBoard:
         return True
     
     def advance_image(self):
-        """Advance to the next image with enhanced clearing"""
+        """Advance to the next image smoothly"""
         if not self.image_list:
             return
-        
-        # Clear screen before advancing
-        self.screen.fill(self.config['background_color'])
-        pygame.display.flip()
         
         self.current_image_index = (self.current_image_index + 1) % len(self.image_list)
         self.display_current_image()
